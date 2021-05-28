@@ -102,6 +102,26 @@ pub struct BuildContext<P: Platform> {
 }
 
 impl<P: Platform> BuildContext<P> {
+    pub fn new(
+        layers_dir: impl Into<PathBuf>,
+        app_dir: impl Into<PathBuf>,
+        buildpack_dir: impl Into<PathBuf>,
+        stack_id: impl Into<String>,
+        platform: P,
+        buildpack_plan: BuildpackPlan,
+        buildpack_descriptor: BuildpackToml,
+    ) -> Self {
+        BuildContext {
+            layers_dir: layers_dir.into(),
+            app_dir: app_dir.into(),
+            buildpack_dir: buildpack_dir.into(),
+            stack_id: stack_id.into(),
+            platform,
+            buildpack_plan,
+            buildpack_descriptor,
+        }
+    }
+
     /// Get access to a new or existing layer
     pub fn layer(&self, name: impl AsRef<str>) -> Result<Layer, Error> {
         Layer::new(name.as_ref(), self.layers_dir.as_path())
