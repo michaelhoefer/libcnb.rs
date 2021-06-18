@@ -2,7 +2,7 @@ use crate::{data::defaults, Error};
 use lazy_static::lazy_static;
 use regex::Regex;
 use semver::Version;
-use serde::{de, Deserialize};
+use serde::{de, Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
 /// Data structure for the Buildpack descriptor (buildpack.toml).
@@ -32,7 +32,7 @@ use std::{fmt, str::FromStr};
 ///         let result = toml::from_str::<BuildpackToml>(raw);
 ///         assert!(result.is_ok());
 /// ```
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct BuildpackToml {
     // MUST be in form <major>.<minor> or <major>, where <major> is equivalent to <major>.0.
     pub api: BuildpackApi,
@@ -44,7 +44,7 @@ pub struct BuildpackToml {
     pub metadata: toml::value::Table,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Buildpack {
     pub id: BuildpackId,
     pub name: String,
@@ -56,19 +56,19 @@ pub struct Buildpack {
     pub clear_env: bool,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Stack {
     pub id: StackId,
     #[serde(default)]
     pub mixins: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Order {
     group: Vec<Group>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Group {
     pub id: BuildpackId,
     pub version: Version,
@@ -76,7 +76,7 @@ pub struct Group {
     pub optional: bool,
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Debug)]
 pub struct BuildpackApi {
     pub major: u32,
     pub minor: u32,
@@ -156,7 +156,7 @@ impl<'de> de::Deserialize<'de> for BuildpackApi {
 /// let invalid = BuildpackId::from_str("!nvalid");
 /// assert!(invalid.is_err());
 /// ```
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct BuildpackId(String);
 
 impl FromStr for BuildpackId {
@@ -196,7 +196,7 @@ impl BuildpackId {
 /// assert!(invalid.is_err());
 /// ```
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct StackId(String);
 
 impl FromStr for StackId {
