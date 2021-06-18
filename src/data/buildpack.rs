@@ -1,9 +1,11 @@
 use crate::{data::defaults, Error};
 use lazy_static::lazy_static;
 use regex::Regex;
-use semver::Version;
 use serde::{de, Deserialize, Serialize};
 use std::{fmt, str::FromStr};
+
+pub use semver::Version;
+pub use toml::value::Table;
 
 /// Data structure for the Buildpack descriptor (buildpack.toml).
 ///
@@ -41,7 +43,7 @@ pub struct BuildpackToml {
     #[serde(default)]
     pub order: Vec<Order>,
     #[serde(default)]
-    pub metadata: toml::value::Table,
+    pub metadata: Table,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
