@@ -41,6 +41,7 @@ pub struct BuildpackToml {
     pub buildpack: Buildpack,
     pub stacks: Vec<Stack>,
     #[serde(default)]
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub order: Vec<Order>,
     #[serde(default)]
     pub metadata: Table,
