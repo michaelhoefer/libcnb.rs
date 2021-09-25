@@ -200,12 +200,10 @@ pub fn execute_layer_lifecycle<
     layer_lifecycle.on_lifecycle_end();
 
     match context.read_layer_content_metadata(&layer_name) {
-        Err(toml_file_error) => Err(Error::LayerLifecycleError(
-            LayerLifecycleError::CannotReadLayerContentMetadata(toml_file_error),
-        )),
-        Ok(None) => Err(Error::LayerLifecycleError(
-            LayerLifecycleError::CannotFindLayerMetadataAfterLifecycle(),
-        )),
+        Err(toml_file_error) => {
+            Err(LayerLifecycleError::CannotReadLayerContentMetadata(toml_file_error).into())
+        }
+        Ok(None) => Err(LayerLifecycleError::CannotFindLayerMetadataAfterLifecycle().into()),
         Ok(Some(metadata)) => layer_lifecycle
             .layer_lifecycle_data(&layer_path, metadata)
             .map_err(Error::BuildpackError),
@@ -283,9 +281,7 @@ fn handle_layer_recreate<
 
     context
         .write_layer_content_metadata(&layer_name, &content_metadata)
-        .map_err(|toml_error| {
-            Error::LayerLifecycleError(LayerLifecycleError::CannotWriteLayerMetadata(toml_error))
-        })
+        .map_err(|toml_error| LayerLifecycleError::CannotWriteLayerMetadata(toml_error).into())
 }
 
 fn handle_layer_update<
@@ -309,9 +305,7 @@ fn handle_layer_update<
 
     context
         .write_layer_content_metadata(&layer_name, &content_metadata)
-        .map_err(|toml_error| {
-            Error::LayerLifecycleError(LayerLifecycleError::CannotWriteLayerMetadata(toml_error))
-        })
+        .map_err(|toml_error| LayerLifecycleError::CannotWriteLayerMetadata(toml_error).into())
 }
 
 fn metadata_recovery<
@@ -331,9 +325,7 @@ fn metadata_recovery<
         let maybe_layer_content_metadata = context
             .read_layer_content_metadata(&layer_name)
             .map_err(|toml_file_error| {
-                Error::LayerLifecycleError(LayerLifecycleError::CannotNotReadUntypedLayerMetadata(
-                    toml_file_error,
-                ))
+                LayerLifecycleError::CannotNotReadUntypedLayerMetadata(toml_file_error)
             })?;
 
         match maybe_layer_content_metadata {
