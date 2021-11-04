@@ -2,6 +2,8 @@ use std::path::Path;
 
 use crate::build::BuildContext;
 use crate::detect::DetectContext;
+use crate::test::TestContext;
+use crate::publish::PublishContext;
 use crate::error::{Error, ErrorHandler};
 use crate::platform::{Platform, PlatformEnv};
 use std::fmt::{Debug, Display};
@@ -11,6 +13,12 @@ pub type GenericMetadata = Option<toml::value::Table>;
 
 /// A build context for a buildpack that uses a generic platform and metadata.
 pub type GenericBuildContext = BuildContext<GenericPlatform, GenericMetadata>;
+
+/// A test context for a buildpack that uses a generic platform and metadata.
+pub type GenericTestContext = TestContext<GenericPlatform, GenericMetadata>;
+
+/// A test context for a buildpack that uses a generic platform and metadata.
+pub type GenericPublishContext = PublishContext<GenericPlatform, GenericMetadata>;
 
 /// A build detect for a buildpack that uses a generic platform and metadata.
 pub type GenericDetectContext = DetectContext<GenericPlatform, GenericMetadata>;
@@ -41,7 +49,7 @@ pub struct GenericErrorHandler;
 impl<E: Debug + Display> ErrorHandler<E> for GenericErrorHandler {
     fn handle_error(&self, error: Error<E>) -> i32 {
         eprintln!("Unhandled error:");
-        eprintln!("> {}", error);
+        eprintln!("> {:?}", error);
         eprintln!("Buildpack will exit!");
         100
     }

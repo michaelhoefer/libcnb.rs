@@ -43,6 +43,9 @@ pub enum Error<E: Debug + Display> {
     #[error("Cannot write build plan: {0}")]
     CannotWriteBuildPlan(TomlFileError),
 
+    #[error("Cannot write test results: {0}")]
+    CannotWriteTestResults(TomlFileError),
+
     #[error("Buildpack error: {0}")]
     BuildpackError(E),
 }
