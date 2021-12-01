@@ -58,6 +58,13 @@ pub use runtime::cnb_runtime;
 pub use runtime::cnb_runtime_all;
 pub use toml_file::*;
 pub use mode::LifecycleMode;
+pub use files::read_file_to_string;
+pub use files::find_one_file;
+pub use files::write_file;
+pub use transfer::get;
+pub use transfer::get_and_extract;
+pub use transfer::put;
+pub use transfer::compress_and_put;
 
 mod build;
 mod detect;
@@ -70,5 +77,7 @@ mod toml_file;
 mod test;
 mod publish;
 mod mode;
+mod files;
+mod transfer;
 
 const LIBCNB_SUPPORTED_BUILDPACK_API: BuildpackApi = BuildpackApi { major: 0, minor: 6 };

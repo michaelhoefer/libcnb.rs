@@ -18,7 +18,10 @@ semver = { version = "^1.0.4", features = ["serde"] }
 serde = { version = "^1.0.126", features = ["derive"] }
 thiserror = "^1.0.26"
 toml = "^0.5.8"
-anyhow = { version = "^1.0.42", optional = true }
-
-[dev-dependencies]
+anyhow = "^1.0.42"
+walkdir = "^2.3.2"
+sha2 = "^0.9"
+tar = "^0.4"
+xz = "^0.1.0"
+reqwest = { version = "0.10", features = ["blocking"] }
 tempfile = "^3.2.0"
