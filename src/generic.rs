@@ -2,10 +2,10 @@ use std::path::Path;
 
 use crate::build::BuildContext;
 use crate::detect::DetectContext;
-use crate::test::TestContext;
-use crate::publish::PublishContext;
 use crate::error::{Error, ErrorHandler};
 use crate::platform::{Platform, PlatformEnv};
+use crate::publish::PublishContext;
+use crate::test::TestContext;
 use std::fmt::{Debug, Display};
 
 /// Generic TOML metadata.

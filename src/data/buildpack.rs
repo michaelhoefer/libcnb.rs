@@ -92,6 +92,8 @@ impl TryFrom<StackUnchecked> for Stack {
 
 #[derive(Deserialize, Debug)]
 pub struct Order {
+    // TODO fix this.  Use it or lose it.
+    #[allow(dead_code)]
     group: Vec<Group>,
 }
 

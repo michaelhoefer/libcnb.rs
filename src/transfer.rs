@@ -1,12 +1,12 @@
-use std::fs::File;
-use sha2::Digest;
-use std::io;
-use std::path::PathBuf;
 use reqwest::blocking::Response;
 use reqwest::IntoUrl;
+use sha2::Digest;
+use std::fs::File;
+use std::io;
+use std::path::PathBuf;
 use tar::Archive;
-use xz::read::{XzDecoder};
-use xz::write::{XzEncoder};
+use xz::read::XzDecoder;
+use xz::write::XzEncoder;
 
 pub fn sha256(data: &[u8]) -> String {
     format!("{:x}", sha2::Sha256::digest(data))
@@ -51,7 +51,10 @@ pub fn put(file_path: &PathBuf, url: impl IntoUrl) -> anyhow::Result<Response, a
     Ok(response)
 }
 
-pub fn compress_and_put(source_path: &PathBuf, url: impl IntoUrl) -> anyhow::Result<(), anyhow::Error> {
+pub fn compress_and_put(
+    source_path: &PathBuf,
+    url: impl IntoUrl,
+) -> anyhow::Result<(), anyhow::Error> {
     let tmpdir = tempfile::tempdir().unwrap();
     let archive_file_path = tmpdir.path().join("source.tar.xz");
     compress(source_path, &archive_file_path)?;
@@ -67,12 +70,10 @@ fn compress(path: &PathBuf, file_path: &PathBuf) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
     use super::*;
-
+    use std::path::Path;
 
     #[test]
     fn it_compresses_directory() {
@@ -89,13 +90,48 @@ mod tests {
                 let tar = XzDecoder::new(tar_xz);
                 let mut archive = Archive::new(tar);
                 let mut iter = archive.entries().unwrap();
-                iter.next().unwrap().unwrap().path().unwrap().as_os_str().eq("./");
-                iter.next().unwrap().unwrap().path().unwrap().as_os_str().eq("src");
-                iter.next().unwrap().unwrap().path().unwrap().as_os_str().eq("src/Dummy.apex");
-                iter.next().unwrap().unwrap().path().unwrap().as_os_str().eq("src/DummyTest.cls");
-                iter.next().unwrap().unwrap().path().unwrap().as_os_str().eq("src/DummyFauxTest.cls");
+                assert!(iter
+                    .next()
+                    .unwrap()
+                    .unwrap()
+                    .path()
+                    .unwrap()
+                    .as_os_str()
+                    .eq("./"));
+                assert!(iter
+                    .next()
+                    .unwrap()
+                    .unwrap()
+                    .path()
+                    .unwrap()
+                    .as_os_str()
+                    .eq("src"));
+                assert!(iter
+                    .next()
+                    .unwrap()
+                    .unwrap()
+                    .path()
+                    .unwrap()
+                    .as_os_str()
+                    .eq("src/Dummy.apex"));
+                assert!(iter
+                    .next()
+                    .unwrap()
+                    .unwrap()
+                    .path()
+                    .unwrap()
+                    .as_os_str()
+                    .eq("src/DummyTest.cls"));
+                assert!(iter
+                    .next()
+                    .unwrap()
+                    .unwrap()
+                    .path()
+                    .unwrap()
+                    .as_os_str()
+                    .eq("src/DummyFauxTest.cls"));
             }
-            Err(e) => panic!("{:?}", e)
+            Err(e) => panic!("{:?}", e),
         }
     }
 }

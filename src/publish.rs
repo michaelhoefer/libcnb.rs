@@ -1,6 +1,6 @@
-use std::path::{PathBuf};
+use std::path::PathBuf;
 
-use crate::{platform::Platform, data::buildpack::BuildpackToml};
+use crate::{data::buildpack::BuildpackToml, platform::Platform};
 
 /// Context for a buildpack's test phase execution.
 pub struct PublishContext<P: Platform, BM> {

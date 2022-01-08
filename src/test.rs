@@ -1,11 +1,12 @@
-use std::fmt::{Debug};
-use std::path::{Path, PathBuf};
 use serde::Serialize;
+use std::fmt::Debug;
+use std::path::{Path, PathBuf};
 
-use crate::{platform::Platform, data::buildpack::BuildpackToml, write_toml_file, TomlFileError};
+use crate::{data::buildpack::BuildpackToml, platform::Platform, write_toml_file, TomlFileError};
 
 /// Context for a buildpack's test phase execution.
 pub struct TestContext<P: Platform, BM> {
+    pub layers_dir: PathBuf,
     pub app_dir: PathBuf,
     pub buildpack_dir: PathBuf,
     pub stack_id: String,
@@ -25,9 +26,8 @@ pub enum TestStatus {
     Pass,
     Fail,
     Ready,
-    Ignore
+    Ignore,
 }
-
 
 #[derive(Serialize, Debug)]
 pub struct TestResults {
@@ -35,6 +35,8 @@ pub struct TestResults {
     pub passed: Vec<TestResult>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub failed: Vec<TestResult>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ignored: Vec<TestResult>,
     pub status: TestStatus,
 }
 
@@ -43,6 +45,7 @@ impl TestResults {
         TestResults {
             passed: vec![],
             failed: vec![],
+            ignored: vec![],
             status: TestStatus::Ready,
         }
     }
@@ -50,26 +53,22 @@ impl TestResults {
 
 #[derive(Serialize, Debug)]
 pub struct TestResult {
-    desc: &'static str,
+    desc: String,
     status: TestStatus,
 }
 
 impl TestResult {
-    pub fn new(desc: &'static str, status: TestStatus) -> TestResult {
-        TestResult {
-            desc,
-            status,
-        }
+    pub fn new(desc: String, status: TestStatus) -> TestResult {
+        TestResult { desc, status }
     }
 }
 
 pub fn write_test_results(
     test_results: &TestResults,
     path: impl AsRef<Path>,
-
 ) -> Result<(), TomlFileError> {
     write_toml_file(&test_results, path)?;
     println!("Tests Finished. {:?}", test_results.status);
-    println!("{:?}", toml::to_string  (test_results));
+    println!("{:?}", toml::to_string(test_results));
     Ok(())
 }

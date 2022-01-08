@@ -11,11 +11,11 @@ use crate::data::buildpack::BuildpackToml;
 use crate::detect::{DetectContext, DetectOutcome};
 use crate::error::{Error, ErrorHandler};
 use crate::platform::Platform;
-use crate::toml_file::{read_toml_file, write_toml_file};
-use crate::{Result, LIBCNB_SUPPORTED_BUILDPACK_API, TestContext, TestOutcome};
-use std::fmt::{Debug, Display};
 use crate::publish::PublishContext;
 use crate::test::write_test_results;
+use crate::toml_file::{read_toml_file, write_toml_file};
+use crate::{Result, TestContext, TestOutcome, LIBCNB_SUPPORTED_BUILDPACK_API};
+use std::fmt::{Debug, Display};
 
 /// Main entry point for this framework.
 ///
@@ -189,7 +189,7 @@ pub fn cnb_runtime<P: Platform, BM: DeserializeOwned, E: Debug + Display>(
         .and_then(OsStr::to_str);
 
     #[cfg(any(target_family = "unix"))]
-        let result = match current_exe_file_name {
+    let result = match current_exe_file_name {
         Some("detect") => cnb_runtime_detect(detect_fn),
         Some("build") => cnb_runtime_build(build_fn),
         other => {
@@ -290,6 +290,8 @@ fn cnb_runtime_test<
 ) -> Result<(), E> {
     let args = parse_test_args_or_exit();
 
+    let layers_dir = args.layers_dir_path;
+
     let app_dir = env::current_dir().map_err(Error::CannotDetermineAppDirectory)?;
 
     let stack_id: String = env::var("CNB_STACK_ID").map_err(Error::CannotDetermineStackId)?;
@@ -298,6 +300,7 @@ fn cnb_runtime_test<
         P::from_path(&args.platform_dir_path).map_err(Error::CannotCreatePlatformFromPath)?;
 
     let test_context = TestContext {
+        layers_dir,
         app_dir,
         stack_id,
         platform,
@@ -308,11 +311,13 @@ fn cnb_runtime_test<
     let result_path = Path::new(".");
     match test_fn(test_context)? {
         TestOutcome::Pass(test_results) => {
-            write_test_results(&test_results, result_path).map_err(Error::CannotWriteTestResults)?;
+            write_test_results(&test_results, result_path)
+                .map_err(Error::CannotWriteTestResults)?;
             process::exit(0)
-        },
+        }
         TestOutcome::Fail(test_results) => {
-            write_test_results(&test_results, result_path).map_err(Error::CannotWriteTestResults)?;
+            write_test_results(&test_results, result_path)
+                .map_err(Error::CannotWriteTestResults)?;
             process::exit(1)
         }
     }
@@ -358,6 +363,7 @@ struct BuildArgs {
 }
 
 struct TestArgs {
+    pub layers_dir_path: PathBuf,
     pub platform_dir_path: PathBuf,
 }
 
@@ -399,7 +405,8 @@ fn parse_build_args_or_exit() -> BuildArgs {
 fn parse_test_args_or_exit() -> TestArgs {
     let args: Vec<String> = env::args().collect();
     match args.as_slice() {
-        [_, platform_dir_path] => TestArgs {
+        [_, layers_dir_path, platform_dir_path] => TestArgs {
+            layers_dir_path: PathBuf::from(layers_dir_path),
             platform_dir_path: PathBuf::from(platform_dir_path),
         },
         _ => {
